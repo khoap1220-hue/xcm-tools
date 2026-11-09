@@ -1,5 +1,12 @@
 # Changelog
 
+## [14.5.3](https://github.com/paraspell/xcm-tools/compare/xcm-api-v14.5.2...xcm-api-v14.5.3) (2026-11-09)
+
+
+### Documentation
+
+* **xcm-api:** Update readmes to latest spec ([f8efff3](https://github.com/paraspell/xcm-tools/commit/f8efff3e97dc06d09c19b3b94c23f058bb83d281))
+
 ## [14.5.2](https://github.com/paraspell/xcm-tools/compare/xcm-api-v14.5.1...xcm-api-v14.5.2) (2026-11-05)
 
 
