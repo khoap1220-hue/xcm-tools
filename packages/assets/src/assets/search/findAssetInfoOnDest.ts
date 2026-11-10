@@ -60,9 +60,15 @@ const resolveAssetOnDest = <TCustomChain extends string = never>(
 
   const isSb = isSnowbridge(origin, destination)
 
-  if (isSb && isSystemAsset(resolvedOriginAsset)) {
-    const match = findAssetInfoImpl(destination, { symbol: resolvedOriginAsset.symbol }, null, ctx)
-    if (match) return match
+  if (isSb) {
+    if (isSystemAsset(resolvedOriginAsset)) {
+      const match = findAssetInfoImpl(destination, { symbol: resolvedOriginAsset.symbol }, null, ctx)
+      if (match) return match
+    }
+    if (origin === 'Ethereum') {
+      const destSystemMatch = findAssetInfoImpl(destination, { symbol: resolvedOriginAsset.symbol }, null, ctx)
+      if (destSystemMatch && isSystemAsset(destSystemMatch)) return destSystemMatch
+    }
   }
 
   // MYTH has two valid locations (native on Mythos, ERC-20 on Ethereum),

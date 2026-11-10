@@ -40,10 +40,17 @@ export const getSupportedAssetsImpl = <TCustomChain extends string = never>(
       // MYTH has two valid locations (native on Mythos, ERC-20 on Ethereum),
       // so it isn't matched by isAssetEqual. Include it explicitly.
       const mythosNative =
-        origin === 'Mythos' && destination === 'Ethereum'
+        (origin === 'Mythos' && destination === 'Ethereum') ||
+        (origin === 'Ethereum' && destination === 'Mythos')
           ? originAssets.filter(asset => asset.symbol === 'MYTH')
           : []
-      return [...systemAssets, ...mythosNative, ...supportedAssets]
+      const ethSystemAssets =
+        origin === 'Ethereum'
+          ? originAssets.filter(asset =>
+              destinationAssets.some(d => d.symbol === asset.symbol && isSystemAsset(d))
+            )
+          : []
+      return [...systemAssets, ...ethSystemAssets, ...mythosNative, ...supportedAssets]
     }
   }
 
