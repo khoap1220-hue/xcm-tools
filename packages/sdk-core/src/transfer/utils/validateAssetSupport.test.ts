@@ -448,7 +448,7 @@ describe('validateEthereumAsset', () => {
       symbol: 'KSM',
       location: {
         parents: 2,
-        interior: { X1: [{ GlobalConsensus: { Kusama: null } }] }
+        interior: { X1: [{ GlobalConsensus: { kusama: null } }] }
       }
     } as TAssetInfo
 
