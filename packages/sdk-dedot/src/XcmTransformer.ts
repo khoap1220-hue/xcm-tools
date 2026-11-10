@@ -101,7 +101,8 @@ export const transform = (obj: any): any => {
         return {
           type: key,
           value: {
-            chainId: value.chainId,
+            chainId:
+              value.chainId !== undefined ? BigInt(value.chainId) : undefined,
           },
         };
       } else if (key === "AccountKey20") {
