@@ -556,4 +556,19 @@ describe('findAssetInfo', () => {
     expect(asset).toHaveProperty('symbol')
     expect(asset).toHaveProperty('assetId')
   })
+  it('should throw error when multiple matches exist for plain .e symbol', () => {
+    vi.mocked(getOtherAssetsImpl).mockReturnValue([
+      {
+        ...wethAsset,
+        assetId: '1',
+        symbol: 'WETH.e'
+      },
+      {
+        ...wethAsset,
+        assetId: '2',
+        symbol: 'WETH.e'
+      }
+    ])
+    expect(() => findAssetInfo('AssetHubPolkadot', { symbol: 'WETH.e' })).toThrow()
+  })
 })

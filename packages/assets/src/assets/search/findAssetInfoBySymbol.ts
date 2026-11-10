@@ -142,6 +142,7 @@ export const findAssetInfoBySymbol = <TCustomChain extends string = never>(
       nativeAssetsMatches = findBestMatches(nativeAssets, symbol)
 
       if (nativeAssetsMatches.length > 0 || otherAssetsMatches.length > 0) {
+        throwIfDuplicate(symbol, nativeAssetsMatches, otherAssetsMatches)
         return pickAny(nativeAssetsMatches, otherAssetsMatches)
       }
 
@@ -157,6 +158,8 @@ export const findAssetInfoBySymbol = <TCustomChain extends string = never>(
       // If still not found, search normal assets without suffix
       otherAssetsMatches = findBestMatches(otherAssets, strippedSymbol)
       nativeAssetsMatches = findBestMatches(nativeAssets, strippedSymbol)
+
+      throwIfDuplicate(symbol, nativeAssetsMatches, otherAssetsMatches)
 
       return pickAny(nativeAssetsMatches, otherAssetsMatches)
     } else {
