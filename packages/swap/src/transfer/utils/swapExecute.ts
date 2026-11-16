@@ -121,7 +121,6 @@ export const getSwapExecuteXcmFee = async <
     api,
     origin,
     exchange,
-    currencyFrom,
     currencyTo,
     feeAsset,
     destination,
@@ -135,6 +134,8 @@ export const getSwapExecuteXcmFee = async <
 
   const buildTx = createSwapExecuteBuildTx(dex, options);
   const amountOut = await callDexAmountOut(dex, options);
+  const originAssetFrom = origin?.assetFrom ?? exchange.assetFrom;
+  const originFeeAsset = origin?.feeAssetInfo ?? exchange.feeAssetInfo;
 
   const result = await getXcmFee({
     api,
@@ -143,8 +144,8 @@ export const getSwapExecuteXcmFee = async <
     destination: destination?.chain ?? exchange.chain,
     sender: evmSenderAddress ?? sender,
     recipient: recipient ?? sender,
-    currency: { ...currencyFrom, amount: amount },
-    feeAsset,
+    currency: { location: originAssetFrom.location, amount },
+    feeAsset: originFeeAsset ? { location: originFeeAsset.location } : feeAsset,
     disableFallback,
     swapConfig: {
       currencyTo,
@@ -186,6 +187,8 @@ export const getSwapExecuteOriginXcmFee = async <
   } = options;
 
   const buildTx = createSwapExecuteBuildTx(dex, options);
+  const originAssetFrom = origin?.assetFrom ?? exchange.assetFrom;
+  const originFeeAsset = origin?.feeAssetInfo ?? exchange.feeAssetInfo;
 
   assertCurrencyCore(currencyFrom);
 
@@ -195,8 +198,8 @@ export const getSwapExecuteOriginXcmFee = async <
     origin: origin?.chain ?? exchange.chain,
     destination: destination?.chain ?? exchange.chain,
     sender: evmSenderAddress ?? sender,
-    currency: { ...currencyFrom, amount },
-    feeAsset,
+    currency: { location: originAssetFrom.location, amount },
+    feeAsset: originFeeAsset ? { location: originFeeAsset.location } : feeAsset,
     disableFallback,
   });
 };

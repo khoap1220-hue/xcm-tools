@@ -229,6 +229,33 @@ describe('getExecuteSwapInfo', () => {
     expect(result.destination.isExchange).toBeUndefined();
   });
 
+  it('resolves pre-swap origin asset against exchange.chain and post-swap dest asset from exchange.chain when both origin and destination are supplied', async () => {
+    const optionsWithBoth = {
+      ...baseOptions,
+      origin: { api: mockApi, chain: 'Polkadot', assetFrom: dotAsset },
+      destination: { chain: 'Ethereum', address: '0x1111111111111111111111111111111111111111' },
+    } as typeof baseOptions;
+
+    const result = await getExecuteSwapInfo(dex, optionsWithBoth);
+
+    expect(findAssetInfoOrThrow).toHaveBeenCalledWith(
+      'Polkadot',
+      baseOptions.currencyFrom,
+      'Hydration',
+    );
+    expect(buildDestInfo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        origin: 'Hydration',
+        destination: 'Ethereum',
+      }),
+    );
+    expect(result.chain).toEqual({
+      origin: 'Polkadot',
+      destination: 'Ethereum',
+      ecosystem: 'Polkadot',
+    });
+  });
+
   it('falls back to sender when no recipient is supplied', async () => {
     const { recipient: _recipient, ...rest } = baseOptions as typeof baseOptions & {
       recipient?: string;

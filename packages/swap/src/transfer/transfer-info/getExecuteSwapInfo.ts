@@ -47,7 +47,7 @@ export const getExecuteSwapInfo = async <TApi, TRes, TSigner, TCustomChain exten
   const recipientAddress = recipient ?? sender;
 
   const originAsset = origin
-    ? findAssetInfoOrThrow(originChain, currencyFrom, destChain)
+    ? findAssetInfoOrThrow(originChain, currencyFrom, exchange.chain)
     : exchange.assetFrom;
 
   const { selectedCurrency, xcmFee: originXcmFee } = await buildOriginInfo({
@@ -80,7 +80,7 @@ export const getExecuteSwapInfo = async <TApi, TRes, TSigner, TCustomChain exten
 
   const destinationInfo = await buildDestInfo({
     api,
-    origin: originChain,
+    origin: exchange.chain,
     destination: destChain,
     recipient: recipientAddress,
     currency: { ...currencyTo, amount: amountOut },
