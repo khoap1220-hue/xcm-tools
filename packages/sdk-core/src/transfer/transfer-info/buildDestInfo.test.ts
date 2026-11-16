@@ -346,4 +346,69 @@ describe('buildDestInfo', () => {
     const expectedFeeBalanceAfter = nativeBalanceForFee - (options.destFeeDetail.fee ?? 0n)
     expect(result.xcmFee.balanceAfter).toBe(expectedFeeBalanceAfter)
   })
+
+  it('should query destFeeDetail.asset balance when fee currency is neither destination native nor destAsset', async () => {
+    const usdtFeeAsset = {
+      symbol: 'USDT',
+      assetId: '10',
+      decimals: 6,
+      location: LOCATION,
+      existentialDeposit: '10000'
+    } as TAssetInfo
+    const tbtcDestBalance = 1152956997353088n
+    const usdtFeeBalance = 139771486083n
+    const usdtFee = 462n
+
+    vi.mocked(getAssetBalanceInternal).mockImplementation(({ asset }) =>
+      Promise.resolve(asset.symbol === 'USDT' ? usdtFeeBalance : tbtcDestBalance)
+    )
+
+    const options = {
+      ...baseOptions,
+      api: mockApi,
+      isOriginFeeAsset: false,
+      destFeeDetail: {
+        fee: usdtFee,
+        feeType: 'dryRun',
+        asset: usdtFeeAsset
+      } as TXcmFeeDetail
+    }
+
+    const result = await buildDestInfo(options)
+
+    expect(getBalanceInternal).not.toHaveBeenCalled()
+    expect(getAssetBalanceInternal).toHaveBeenCalledWith({
+      api: mockClonedApi,
+      address: options.recipient,
+      chain: options.destination,
+      asset: usdtFeeAsset
+    })
+    expect(result.receivedCurrency.balance).toBe(tbtcDestBalance)
+    expect(result.xcmFee.balance).toBe(usdtFeeBalance)
+    expect(result.xcmFee.balanceAfter).toBe(usdtFeeBalance - usdtFee)
+  })
+
+  it('should not equate destXcmFeeBalanceAfter with destBalanceAfter when isOriginFeeAsset is true but destFeeAssetEqual is false', async () => {
+    const nativeBalanceForFee = 70000000000n
+    vi.mocked(getNativeAssetSymbol).mockImplementation(chain =>
+      chain === baseOptions.destination ? 'HDX' : 'DOT'
+    )
+    vi.mocked(getBalanceInternal).mockResolvedValue(nativeBalanceForFee)
+
+    const options = {
+      ...baseOptions,
+      api: mockApi,
+      isOriginFeeAsset: true,
+      destFeeDetail: {
+        fee: DEFAULT_FEE,
+        feeType: 'dryRun',
+        asset: { symbol: 'HDX' } as TAssetInfo
+      } as TXcmFeeDetail
+    }
+
+    const result = await buildDestInfo(options)
+
+    expect(result.xcmFee.balance).toBe(nativeBalanceForFee)
+    expect(result.xcmFee.balanceAfter).toBe(nativeBalanceForFee - DEFAULT_FEE)
+  })
 })
